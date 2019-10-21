@@ -1,0 +1,24 @@
+# ! /bin/sh
+
+# Set or unset values of shell options and positional parameters.
+# -e  Exit immediately if a command exits with a non-zero status.
+
+set -e
+
+# calling the directory where the script is installed and make it the directory
+cd "$(dirname "$0")/.."
+
+# installing py file on /usr/local/bin & make it executable
+echo "=> Installing shutdown routine ... \n" 
+sudo cp shutdown.py /usr/local/bin/
+sudo chmod +x /usr/local/bin/shutdown.py
+
+# installing bash file to run on startup. It copies to /etc/init.d/
+echo "=> Starting shutdown ... \n"
+sudo cp shutdown.sh /etc/init.d/
+sudo chmod +x /etc/init.d/
+
+sudo update-rc.d shutdown.sh defaults
+sudo /etc/init.d/shutdown.sh start
+
+echo "Shutdown available"
