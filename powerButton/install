@@ -6,7 +6,7 @@
 set -e
 
 # calling the directory where the script is installed and make it the directory
-cd "$(dirname "$0")/.."
+cd "$(dirname "$0")/"
 
 # installing py file on /usr/local/bin & make it executable
 echo "=> Installing shutdown routine ... \n" 
