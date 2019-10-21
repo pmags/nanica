@@ -15,7 +15,7 @@ GPIO.setup(shutdown, GPIO.IN, pull_up_down=GPIO.PUD_UP) # Make shutdown input, A
 # An edge is the name of a transition from HIGH to LOW (falling edge) or LOW to HIGH (rising edge)
 # The wait_for_edge() function is designed to block execution of your program until an edge is detected. 
 
-GPIO.wait_for_edge(shudown,GPIO.FALLING)
+GPIO.wait_for_edge(shutdown,GPIO.FALLING)
 subprocess.call(['shutdown','-h','now'], shell = False) # execute bash command
 
 GPIO.cleanup()
