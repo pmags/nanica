@@ -94,6 +94,21 @@ sudo /etc/init.d/picam start
 
 echo "Picam fully setup"
 
+###### INSTALLING NGINX SERVER
+echo "Getting ready to bradcast ... \n"
+
+# This will allow the cam to stream
+sudo apt-get update
+sudo apt-get install nginx
+
+# setting up nginx file
+cat /etc/nginx/sites-available/default | \sed -e '/location //i location /hls/ {root /run/shm;}' >/etc/nginx/sites-available/default
+
+# starting nginx
+sudo /etc/init.d/nginx start
+
+echo "Broadcast ready"
+
 ###### INSTALLING SHUTDOWN BUTTON
 
 # Set or unset values of shell options and positional parameters.
