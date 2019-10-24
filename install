@@ -1,0 +1,120 @@
+# ! /bin/sh
+
+###############################################################################
+# Script to install every software needed to run nanica
+##############################################################################
+
+###### INSTALLING CAM DEPENDENCIES
+echo "=> Installing picam ... \n"
+sudo apt-get install libharfbuzz0b libfontconfig1
+
+echo "=> Preparing folder for cam ...\n"
+
+# A here document << is used to redirect input into an interactive shell script or program.
+# The make_dris.sh is a terminal script that creates all necessary folders and links
+
+cat > make_dirs.sh <<'EOF'
+DEST_DIR=~/picam
+SHM_DIR=/run/shm
+mkdir -p $SHM_DIR/rec
+mkdir -p $SHM_DIR/hooks
+mkdir -p $SHM_DIR/state
+mkdir -p $DEST_DIR/archive
+# creates links
+ln -sfn $DEST_DIR/archive $SHM_DIR/rec/archive
+ln -sfn $SHM_DIR/rec $DEST_DIR/rec
+ln -sfn $SHM_DIR/hooks $DEST_DIR/hooks
+ln -sfn $SHM_DIR/state $DEST_DIR/state
+EOF
+
+# Make executable
+sudo chmod +x make_dirs.sh
+sudo bash ./make_dirs.sh
+ 
+# Install software
+sudo wget https://github.com/iizukanao/picam/releases/download/v1.4.7/picam-1.4.7-binary.tar.xz
+tar xvf picam-1.4.7-binary.tar.xz
+cp picam-1.4.7-binary/picam ~/picam/
+
+echo "cam available"
+
+###### CONFIG SOFTWARE
+
+echo "=> Setting up cam for you ... \n"
+
+# Creates run_picam.sh bash that starts cam 
+sudo echo -e "sudo bash /home/pi/make_dirs.sh\nsudo /home/pi/picam/picam -o /run/shm/hls --time --alsadev hw:1,0 > /var/log/picam.log 2&>1" > run_picam.sh
+sudo chmod +x run_picam.sh
+
+# Run at startup
+cat > picam << 'EOF'
+#! /bin/sh
+# /etc/init.d/picam
+
+### BEGIN INIT INFO
+# Provides: picam
+# Required-Start: $remote_fs $syslog $network
+# Required-Stop: $remote_fs $syslog $network
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 6
+# Short-Description: Simple script to start Picam at boot
+# Description: A simple script to start Picam at boot
+### END INIT INFO
+
+# If you want a command to always run, put it here
+
+# Carry out specific functions when asked to by the system
+case "$1" in
+start)
+echo "Starting Picam"
+# run application you want to start
+sudo /home/pi/run_picam.sh
+;;
+stop)
+echo "Stopping Picam"
+# kill application you want to stop
+killall picam
+;;
+*)
+echo "Usage: /etc/init.d/picam {start|stop}"
+exit 1
+;;
+esac
+
+exit 0
+This is an initialization
+'EOF'
+
+# setting up at startup
+sudo cp picam /etc/init.d
+sudo chmod +x /etc/init.d/picam
+
+sudo update-rc.d picam defaults
+sudo /etc/init.d/picam start
+
+echo "Picam fully setup"
+
+###### INSTALLING SHUTDOWN BUTTON
+
+# Set or unset values of shell options and positional parameters.
+# -e  Exit immediately if a command exits with a non-zero status.
+
+set -e
+
+# calling the directory where the script is installed and make it the directory
+cd "$(dirname "$0")/"
+
+# installing py file on /usr/local/bin & make it executable
+echo "=> Installing shutdown routine ... \n" 
+sudo cp powerButton/shutdown.py /usr/local/bin/
+sudo chmod +x /usr/local/bin/shutdown.py
+
+# installing bash file to run on startup. It copies to /etc/init.d/
+echo "=> Starting shutdown ... \n"
+sudo cp powerButton/shutdown.sh /etc/init.d/
+sudo chmod +x /etc/init.d/shutdown.sh
+
+sudo update-rc.d shutdown.sh defaults
+sudo /etc/init.d/shutdown.sh start
+
+echo "Shutdown available"
