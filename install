@@ -4,12 +4,7 @@
 # Script to install every software needed to run nanica
 ##############################################################################
 
-set -e
-
 #cd "$(dirname "$0")/.."
-
-cd ~
-pwd
 
 ###### INSTALLING CAM DEPENDENCIES
 echo "=> Installing picam ... \n"
@@ -20,26 +15,25 @@ echo "=> Preparing folder for cam ...\n"
 # A here document << is used to redirect input into an interactive shell script or program.
 # The make_dris.sh is a terminal script that creates all necessary folders and links
 
-cat > /home/pi/make_dirs.sh <<'EOF'
+cat > make_dirs.sh <<'EOF'
 DEST_DIR=~/picam
 SHM_DIR=/run/shm
 mkdir -p $SHM_DIR/rec
 mkdir -p $SHM_DIR/hooks
 mkdir -p $SHM_DIR/state
 mkdir -p $DEST_DIR/archive
-# creates links
-ln -sfn $DEST_DIR/archive $SHM_DIR/rec/archive
-ln -sfn $SHM_DIR/rec $DEST_DIR/rec
-ln -sfn $SHM_DIR/hooks $DEST_DIR/hooks
-ln -sfn $SHM_DIR/state $DEST_DIR/state
+sudo ln -sfn $DEST_DIR/archive $SHM_DIR/rec/archive
+sudo ln -sfn $SHM_DIR/rec $DEST_DIR/rec
+sudo ln -sfn $SHM_DIR/hooks $DEST_DIR/hooks
+sudo ln -sfn $SHM_DIR/state $DEST_DIR/state
 EOF
 
 # Make executable
-sudo chmod +x make_dirs.sh
-sudo bash ./make_dirs.sh
+chmod +x make_dirs.sh
+bash make_dirs.sh
  
 # Install software
-sudo wget https://github.com/iizukanao/picam/releases/download/v1.4.7/picam-1.4.7-binary.tar.xz
+wget https://github.com/iizukanao/picam/releases/download/v1.4.7/picam-1.4.7-binary.tar.xz
 tar xvf picam-1.4.7-binary.tar.xz
 cp picam-1.4.7-binary/picam ~/picam/
 
@@ -51,12 +45,12 @@ echo "=> Setting up cam for you ... \n"
 
 # Creates run_picam.sh bash that starts cam 
 sudo echo -e "sudo bash /home/pi/make_dirs.sh\nsudo /home/pi/picam/picam -o /run/shm/hls --time --alsadev hw:1,0 > /var/log/picam.log 2&>1" > run_picam.sh
-sudo chmod +x run_picam.sh
+chmod +x run_picam.sh
 
 # Run at startup
-cat > picam << 'EOF'
+cat > picam_st << 'EOF'
 #! /bin/sh
-# /etc/init.d/picam
+# /etc/init.d/picam_st
 
 ### BEGIN INIT INFO
 # Provides: picam
@@ -67,8 +61,6 @@ cat > picam << 'EOF'
 # Short-Description: Simple script to start Picam at boot
 # Description: A simple script to start Picam at boot
 ### END INIT INFO
-
-# If you want a command to always run, put it here
 
 # Carry out specific functions when asked to by the system
 case "$1" in
@@ -83,60 +75,61 @@ echo "Stopping Picam"
 killall picam
 ;;
 *)
-echo "Usage: /etc/init.d/picam {start|stop}"
+echo "Usage: /etc/init.d/picam_st {start|stop}"
 exit 1
 ;;
 esac
 
 exit 0
-This is an initialization
 EOF
 
 # setting up at startup
-sudo cp picam /etc/init.d
-sudo chmod +x /etc/init.d/picam
+#sudo cp picam_st /etc/init.d
 
-sudo update-rc.d picam defaults
-sudo /etc/init.d/picam start
+# make it executable
+#sudo chmod +x /etc/init.d/picam_st
 
-echo "Picam fully setup"
+# Make it available at startup
+#sudo update-rc.d picam_st defaults
+
+#echo "Picam fully setup"
 
 ###### INSTALLING NGINX SERVER
-echo "Getting ready to bradcast ... \n"
+#echo "Getting ready to bradcast ... \n"
 
 # This will allow the cam to stream
-sudo apt-get update
-sudo apt-get install nginx
+#sudo apt-get update
+#sudo apt-get install nginx
 
 # setting up nginx file
-cat /etc/nginx/sites-available/default | \sed -e '/location //i location /hls/ {root /run/shm;}' >/etc/nginx/sites-available/default
+#cat /etc/nginx/sites-available/default | \sed -e '/location //i location /hls/ {root /run/shm;}' >/etc/nginx/sites-available/default
 
 # starting nginx
-sudo /etc/init.d/nginx start
+#sudo /etc/init.d/nginx start
 
-echo "Broadcast ready"
+#echo "Broadcast ready"
 
 ###### INSTALLING SHUTDOWN BUTTON
 
 # Set or unset values of shell options and positional parameters.
 # -e  Exit immediately if a command exits with a non-zero status.
 
-set -e
+#set -e
 
 # calling the directory where the script is installed and make it the directory
-cd "$(dirname "$0")/"
+#cd "$(dirname "$0")/"
 
 # installing py file on /usr/local/bin & make it executable
-echo "=> Installing shutdown routine ... \n" 
-sudo cp powerButton/shutdown.py /usr/local/bin/
-sudo chmod +x /usr/local/bin/shutdown.py
+#echo "=> Installing shutdown routine ... \n" 
+#sudo cp powerButton/shutdown.py /usr/local/bin/
+#sudo chmod +x /usr/local/bin/shutdown.py
 
 # installing bash file to run on startup. It copies to /etc/init.d/
-echo "=> Starting shutdown ... \n"
-sudo cp powerButton/shutdown.sh /etc/init.d/
-sudo chmod +x /etc/init.d/shutdown.sh
+#echo "=> Starting shutdown ... \n"
+#sudo cp powerButton/shutdown.sh /etc/init.d/
+#sudo chmod +x /etc/init.d/shutdown.sh
 
-sudo update-rc.d shutdown.sh defaults
-sudo /etc/init.d/shutdown.sh start
+#sudo update-rc.d shutdown.sh defaults
+#sudo /etc/init.d/shutdown.sh start
 
-echo "Shutdown available"
+#echo "Shutdown available"
