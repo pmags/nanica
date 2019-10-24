@@ -83,7 +83,7 @@ esac
 
 exit 0
 This is an initialization
-'EOF'
+EOF
 
 # setting up at startup
 sudo cp picam /etc/init.d
