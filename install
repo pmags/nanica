@@ -4,6 +4,13 @@
 # Script to install every software needed to run nanica
 ##############################################################################
 
+set -e
+
+#cd "$(dirname "$0")/.."
+
+cd ~
+pwd
+
 ###### INSTALLING CAM DEPENDENCIES
 echo "=> Installing picam ... \n"
 sudo apt-get install libharfbuzz0b libfontconfig1
@@ -13,7 +20,7 @@ echo "=> Preparing folder for cam ...\n"
 # A here document << is used to redirect input into an interactive shell script or program.
 # The make_dris.sh is a terminal script that creates all necessary folders and links
 
-cat > make_dirs.sh <<'EOF'
+cat > /home/pi/make_dirs.sh <<'EOF'
 DEST_DIR=~/picam
 SHM_DIR=/run/shm
 mkdir -p $SHM_DIR/rec
