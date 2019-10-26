@@ -19,7 +19,7 @@ cp picam-1.4.7-binary/picam ~/picam/
 chmod +x run_picam.sh
 
 # copy file to initial and make it executable
-cp picam /etc/init.d/picam
+sudp cp picam_tmp /etc/init.d/picam
 sudo chmod +x /etc/init.d/picam
 
 # Register at startup
