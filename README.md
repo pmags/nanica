@@ -9,3 +9,11 @@ During our journey we will be inspired by other projects and use code from other
 
 ## Links to projects that helped and/or inspired us (credit to them)
 
+## Alpha
+**Goals:** 
+- stream video and sound. 
+- No real need for a specific app, we can use vlc or similar. 
+- Lag is not an issue (yet).
+- Needs a shutdown button and a camera ir filter changer.
+- We need an installer to be easier for next stages. (linux bash file).
+- We need some kind of boxing solution.
