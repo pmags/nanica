@@ -7,6 +7,8 @@ This Repo will mainly compile our journey with raspberry pi to build a solid bab
 
 During our journey we will be inspired by other projects and use code from other open projects and live links to their projects here.
 
+Activate power led using /boot/config.txt - enable_uart=1
+
 ## Links to projects that helped and/or inspired us (credit to them)
 
 ## Alpha
